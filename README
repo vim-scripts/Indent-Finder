@@ -1,0 +1,9 @@
+This is a mirror of http://www.vim.org/scripts/script.php?script_id=513
+
+For each new open buffer, scans the buffer, find the indentation being used in the file and configure vim to this indentation. 
+
+This solves the problem of files with different indentations.
+
+Homepage of the project:
+http://www.freehackers.org/Indent_Finder
+
