@@ -18,9 +18,10 @@ space X
 tab 8
 mixed tab X space Y
 
-mixed means that indentation style is tab at the beginning of the line (tab being 8 positions) and
-then spaces to do the indentation, unless you reach 8 spaces which are replaced by a tab. This is
-the vim source file indentation for example. In my opinion, this is the worst possible style.
+mixed means that indentation style is tab at the beginning of the line (tab
+being 8 positions) and then spaces to do the indentation, unless you reach 8
+spaces which are replaced by a tab. This is the vim source file indentation
+for example. In my opinion, this is the worst possible style.
 
 --vim-output: output suitable to use inside vim:
 set sts=0 | set tabstop=4 | set noexpandtab | set shiftwidth=4
@@ -63,17 +64,17 @@ def log( level, s ):
 
 class IndentFinder:
     """
-    IndentFinder reports the indentation used in a source file. Its approach is
-    not tied to any particular language. It was tested successfully 
-    with python, C, C++ and Java code.
+    IndentFinder reports the indentation used in a source file. Its approach
+    is not tied to any particular language. It was tested successfully with
+    python, C, C++ and Java code.
 
     How does it work ?
 
     It scans each line of the entry file for a space character (white space or
     tab) repeated until a non space character is found. Such a line
     is considered to be a properly indented line of code. Blank lines and
-    comments line are ignored. Lines coming after a line ending in '\\' have higher 
-    chance of being not properly indented, and are thus ignored too.
+    comments line are ignored. Lines coming after a line ending in '\\' have
+    higher chance of being not properly indented, and are thus ignored too.
     
     An array stores the number of lines that have a specific indentation: tab,
     number of spaces between 2 and 8. For space indentation, a line is
@@ -128,10 +129,11 @@ class IndentFinder:
         self.previous_line_info = None
 
     def analyse_line_type( self, line ):
-        '''Analyse the type of line and return (LineType, <indentation part of the line>).
+        '''Analyse the type of line and return (LineType, <indentation part of
+        the line>).
 
-        The function will reject improperly formatted lines (mixture of tab and space for example)
-        and comment lines.
+        The function will reject improperly formatted lines (mixture of tab
+        and space for example) and comment lines.
         '''
         mixed_mode = False
         tab_part = ''
@@ -351,13 +353,11 @@ class IndentFinder:
             return "set sts=%d | set tabstop=%d | set expandtab | set shiftwidth=%d" % (n,n,n)
 
         elif indent_type == "tab":
-            tab_width=4
             # tab:
             #   => set sts to 0
             #   => set tabstop to preferred value
             #   => set expandtab to false
             #   => set shiftwidth to tabstop
-            #   tabstop should not be touched.
             return "set sts=0 | set tabstop=%d | set noexpandtab | set shiftwidth=%d" % (DEFAULT_TAB_WIDTH, DEFAULT_TAB_WIDTH)
 
         if indent_type == 'mixed':
@@ -367,8 +367,7 @@ class IndentFinder:
             #   => set tabstop to tab_indent
             #   => set expandtab to false
             #   => set shiftwidth to space_indent
-            #   tabstop should not be touched.
-            return "set sts=0 | set tabstop=%d | set noexpandtab | set shiftwidth=%d" % (tab_indent,
+            return "set sts=4 | set tabstop=%d | set noexpandtab | set shiftwidth=%d" % (tab_indent,
 space_indent )
 
 
@@ -376,7 +375,6 @@ space_indent )
 def main():
     VIM_OUTPUT = 0
 
-    fi = IndentFinder()
     file_list = []
     for opt in sys.argv[1:]:
         if opt == "--vim-output": VIM_OUTPUT = 1
@@ -387,17 +385,26 @@ def main():
         else:
             file_list.append( opt )
 
-    for fname in file_list:
-        fi.clear()
-        fi.parse_file( fname )
-        print "%s : %s" % (fname, str(fi))
-    return
+    fi = IndentFinder()
 
-    fi.parse_file_list( file_list )
-    if VIM_OUTPUT:
-        print fi.vim_output()
+    if len(file_list) > 1:
+        # multiple files
+        for fname in file_list:
+            fi.clear()
+            fi.parse_file( fname )
+            if VIM_OUTPUT:
+                print "%s : %s" % (fname, fi.vim_output())
+            else:
+                print "%s : %s" % (fname, str(fi))
+        return
+
     else:
-        print str(fi)
+        # only one file, don't print filename
+        fi.parse_file_list( file_list )
+        if VIM_OUTPUT:
+            sys.stdout.write( fi.vim_output() )
+        else:
+            print str(fi)
 
 
 if __name__ == "__main__":
